@@ -2,7 +2,6 @@ import functools
 from math import factorial
 import matplotlib.pyplot as plt
 import numpy as np
-
 args = [1 / 7, 1 / 46, 20, 0]
 
 
@@ -31,14 +30,12 @@ def Pi(lam, mu, n, m, pos=None):
 args1 = args.copy()
 args2 = args.copy()
 
-
 # Ответы в формате вида (значения графика по икс: list, значения графика по игрек: list)
 ans_to_var_n = []
 ans_to_var_m = []
+for i in range(20): ans_to_var_n.append([]), ans_to_var_m.append([])
 
 # Блок просчёта вероятности отказа
-ans_to_var_n.append([])
-ans_to_var_m.append([])
 for i in range(1, 20 + 1):
     p_otk_ni = []
     p_otk_mi = []
@@ -51,18 +48,26 @@ for i in range(1, 20 + 1):
         p_otk_mi.append(Pi(*args2))
     ans_to_var_n[0].append((range(1, 20 + 1), p_otk_ni))
     ans_to_var_m[0].append((range(1, 20 + 1), p_otk_mi))
+# for i in ans_to_var_n[1]: plt.plot(*i)
 
 # Блок просчёта матожидания
-ans_to_var_n.append([])
-ans_to_var_m.append([])
+for i in range(1, 20 + 1):
+    args1[2] = i
+    args2[3] = i
+    ys_var_m = []
+    ys_var_n = []
+    for j in range(1, 21):
+        args1[3] = j
+        args2[2] = j
+        ys_var_m.append(sum([Pi(*args1, k) * min(k, i) for k in range(i + j + 1)]))
+        ys_var_n.append(sum([Pi(*args2, k) * min(k, j) for k in range(i + j + 1)]))
+    ans_to_var_m[1].append((list(range(20)), ys_var_m))
+    ans_to_var_n[1].append((list(range(20)), ys_var_n))
 
-for var_n in range(1, 20 + 1):
-    args1[2] = var_n
-    ys = []
-    for var_m in range(21):
-        args1[3] = var_m
-        ys.append(sum([Pi(*args1, k) * min(k, var_n) for k in range(var_n + var_m + 1 )]))
-    plt.plot(list(range(21)), ys)
+# for i in ans_to_var_n[1]: plt.plot(*i)
+
+# Блок расчёта коэффициента загруженности операторов
+
 
 plt.show()
 plt.close()
