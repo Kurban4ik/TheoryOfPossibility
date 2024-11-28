@@ -1,3 +1,5 @@
+# FILE HAS BEEN DEVELOPED BY LIGMA NATION SUCKS INC.
+
 import functools
 from math import factorial
 import matplotlib.pyplot as plt
@@ -6,9 +8,20 @@ import numpy as np
 args = [1 / 7, 1 / 46, 20, 0]
 
 
+def mult(arr: list) -> float:
+    """
+    :param arr: list of numbers
+    :return: multiplication of elements
+    """
+    t = 1
+    for i in arr:
+        t *= i
+    return t
+
+
 # Функция для просчёта вероятности отказа
 @functools.lru_cache()
-def Pi(lam, mu, n, m, pos=None):
+def Pi(lam, mu, n, m, pos=None, nu=None):
     """
     :param lam: -
     :param mu: -
@@ -19,13 +32,29 @@ def Pi(lam, mu, n, m, pos=None):
     """
     p0 = 0
     ro = lam / mu
-    if m != -1:
+    if m == -2:
+        m = 100
+        sum1 = sum([ro ** i / factorial(i) for i in range(n + 1)])
+
+        sum2 = 0
+        for j in range(1, m + 1):
+            prod = 1
+            for k_ in range(1, j + 1):
+                prod *= (n * mu + k_ * nu)
+            sum2 += lam ** j / prod
+
+        p0 = 1 / (sum1 + (ro ** n / factorial(n)) * sum2)
+        if 0 <= pos <= n:
+            return p0 * ro ** pos / factorial(pos)
+        j = pos - n
+        return p0 * ro ** n / factorial(n) * mult([lam / (n * mu + k_ * nu) for k_ in range(1, j + 1)])
+    elif m == -1:
+        q = sum([ro ** i / factorial(i) for i in range(0, n + 1)]) + ro ** (n + 1) / factorial(n) / (n - ro)
+        p0 = 1 / q
+    else:
         for i in range(n + 1):
             p0 += ro ** i / factorial(i)
         p0 = 1 / (p0 + (ro ** n / factorial(n)) * sum([(ro ** j / n ** j) for j in range(1, m + 1)]))
-    else:
-        q = sum([ro ** i / factorial(i) for i in range(0, n + 1)]) + ro ** (n + 1) / factorial(n) / (n - ro)
-        p0 = 1 / q
     if pos == None:
         return (ro ** (n + m) / (factorial(n) * n ** m)) * p0
     return (ro ** pos / (factorial(min(n, pos)) * n ** max(0, pos - n))) * p0
@@ -117,8 +146,7 @@ def task1_2():
     for i in range(1, len(ans_to_var_n[4]) + 1):
         new_q = np.array(ans_to_var_n[4][i - 1][1]) / i
         ans_to_var_n[5].append((ans_to_var_n[4][i - 1][0], new_q))
-    # for i in ans_to_var_n[5]: plt.plot(*i)
-
+    # for i in ans_to_var_m[5]: plt.plot(*i)
 
 def task1_3():
     ans = []
@@ -141,11 +169,44 @@ def task1_3():
 
     return ans
 
+
 def task1_4():
+    ans = []
+    nyu = 1/66
+    for i in range(20): ans.append([])
+    args1 = args.copy()
+    # Блок расчёта матожидания количества занятых операторов СВО (0)
+    vars = []
+    for n in range(1, 20 + 1):
+        mat = n - sum([(n - i) * Pi(*args[:2], n, -2, i, nyu) for i in range(n + 1)])
+        vars.append(mat)
+    ans[0] = [(range(1, 21), vars)]
+
+    # Блок расчёта коэффициента загрузки операторов (1)
+    vars = []
+    for n in range(1, 20 + 1):
+        mat = (n - sum([(n - i) * Pi(*args[:2], n, -2, i, nyu) for i in range(n + 1)])) / n
+        vars.append(mat)
+    ans[1] = [(range(1, 21), vars)]
+
+    # Блок расчёта существования очереди (2)
+    vars = []
+    for n in range(1, 21):
+        mat = 1 - sum([Pi(*args[:2], n, -2, i, nyu) for i in range(n + 1)])
+        vars.append(mat)
+    ans[2] = [(range(1, 21), vars)]
+
+    # Блок расчёта матожидание длины очереди (3)
+    vars = []
+    for n in range(1, 21):
+        mat = sum([i * Pi(*args1[:2], n, -2, i, nyu) for i in range(n + 1, 101)])
+        vars.append(mat)
+    ans[3] = [(range(1, 21), vars)]
+    return ans.copy()
 
 
 if __name__ == '__main__':
-    anses = task1_3()
-    for i in anses[2]: plt.plot(*i)                                     
+    anses = task1_4()
+    for i in anses[1]: plt.plot(*i)
     plt.show()
     plt.close()
