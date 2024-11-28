@@ -147,6 +147,8 @@ def task1_2():
         new_q = np.array(ans_to_var_n[4][i - 1][1]) / i
         ans_to_var_n[5].append((ans_to_var_n[4][i - 1][0], new_q))
     # for i in ans_to_var_m[5]: plt.plot(*i)
+    return ans_to_var_n, ans_to_var_m
+
 
 def task1_3():
     ans = []
@@ -207,6 +209,7 @@ def task1_4():
 
 if __name__ == '__main__':
     anses = task1_4()
-    for i in anses[1]: plt.plot(*i)
+    for i in anses[0]:
+        plt.plot(*i, '-o')
     plt.show()
     plt.close()
