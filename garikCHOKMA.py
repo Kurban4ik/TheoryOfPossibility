@@ -32,10 +32,8 @@ def Pi(lam, mu, n, m, pos=None, nu=None):
     """
     p0 = 0
     ro = lam / mu
-    if m == -2:
-        m = 100
+    if nu != None:
         sum1 = sum([ro ** i / factorial(i) for i in range(n + 1)])
-
         sum2 = 0
         for j in range(1, m + 1):
             prod = 1
@@ -160,7 +158,7 @@ def task1_3():
     # Блок подсчёта числа занятых операторов (0)
     ans[0] = [[range(1, 21), [ro] * 20]]
 
-    # Блок подсчёта коэффициента загрузки операторов (1)
+    # Блок подсчёта коэффи циента загрузки операторов (1)
     ans[1] = [[range(1, 21), [ro / i for i in range(1, 21)]]]
 
     # Блок подсчёта вероятности сущестсования очереди
@@ -174,42 +172,53 @@ def task1_3():
 
 def task1_4():
     ans = []
-    nyu = 1/66
+    nyu = 1 / 66
     for i in range(20): ans.append([])
     args1 = args.copy()
+
+    eps = 0.0001
+    good_ms = {}
+    for n in range(1, 21):
+        mi = 1
+        while abs(Pi(*args[:2], n, mi, 0, nyu) - Pi(*args[:2], n, mi + 1, 0, nyu)) > eps:
+            print(Pi(*args[:2], n, mi, 0, nyu))
+            mi += 1
+        good_ms[n] = mi
+    print(good_ms)
     # Блок расчёта матожидания количества занятых операторов СВО (0)
     vars = []
     for n in range(1, 20 + 1):
-        mat = n - sum([(n - i) * Pi(*args[:2], n, -2, i, nyu) for i in range(n + 1)])
+        mat = n - sum([(n - i) * Pi(*args[:2], n, 100, i, nyu) for i in range(n + 1)])
         vars.append(mat)
     ans[0] = [(range(1, 21), vars)]
 
     # Блок расчёта коэффициента загрузки операторов (1)
     vars = []
     for n in range(1, 20 + 1):
-        mat = (n - sum([(n - i) * Pi(*args[:2], n, -2, i, nyu) for i in range(n + 1)])) / n
+        mat = (n - sum([(n - i) * Pi(*args[:2], n, 100, i, nyu) for i in range(n + 1)])) / n
         vars.append(mat)
     ans[1] = [(range(1, 21), vars)]
 
     # Блок расчёта существования очереди (2)
     vars = []
     for n in range(1, 21):
-        mat = 1 - sum([Pi(*args[:2], n, -2, i, nyu) for i in range(n + 1)])
+        mat = 1 - sum([Pi(*args[:2], n, 100, i, nyu) for i in range(n + 1)])
         vars.append(mat)
     ans[2] = [(range(1, 21), vars)]
 
     # Блок расчёта матожидание длины очереди (3)
     vars = []
     for n in range(1, 21):
-        mat = sum([i * Pi(*args1[:2], n, -2, i, nyu) for i in range(n + 1, 101)])
+        mat = sum([(i - n) * Pi(*args1[:2], n, 100, i, nyu) for i in range(n + 1, 101)])
         vars.append(mat)
     ans[3] = [(range(1, 21), vars)]
+
     return ans.copy()
 
 
 if __name__ == '__main__':
     anses = task1_4()
-    for i in anses[0]:
+    for i in anses[3]:
         plt.plot(*i, '-o')
     plt.show()
     plt.close()
